@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+
+"""
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+
+---
+
+usage: kodi [-h] {restart,start,stop,tail} ...
+
+positional arguments:
+  {restart,start,stop,tail}
+    restart             Restart Kodi
+    start               Start Kodi
+    stop                Stop Kodi
+    tail                Tail kodi.log
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+usage: kodi restart [-h] [-t]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -t, --tail  Tail kodi.log after selected action
+
+usage: kodi start [-h] [-t]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -t, --tail  Tail kodi.log after selected action
+
+"""
+
+import argparse
+import subprocess
+import sys
+import time
+
+
+def restart(args):
+    print('Restarting Kodi...')
+
+    subprocess.call(['sudo', 'systemctl', 'restart', 'mediacenter'])
+
+    if args.tail:
+        print('Sleeping for 5 seconds before tailing kodi.log...')
+        time.sleep(5)
+        subprocess.call(['tail', '-f', '/home/osmc/.kodi/temp/kodi.log'])
+
+
+def start(args):
+    print('Starting Kodi...')
+
+    subprocess.call(['sudo', 'systemctl', 'start', 'mediacenter'])
+
+    if args.tail:
+        print('Sleeping for 5 seconds before tailing kodi.log...')
+        time.sleep(5)
+        subprocess.call(['tail', '-f', '/home/osmc/.kodi/temp/kodi.log'])
+
+
+def stop(args):
+    _ = args
+    print('Stopping Kodi...')
+
+    subprocess.call(['sudo', 'systemctl', 'stop', 'mediacenter'])
+
+
+def tail(args):
+    _ = args
+    print('Tailing kodi.log...')
+
+    subprocess.call(['tail', '-f', '/home/osmc/.kodi/temp/kodi.log'])
+
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser_tail = argparse.ArgumentParser(add_help=False)
+    parser_tail.add_argument('-t', '--tail', action='store_true',
+                             help='Tail kodi.log after selected action')
+
+    sub_parser = parser.add_subparsers()
+
+    sub_restart = sub_parser.add_parser('restart', parents=[parser_tail], help='Restart Kodi')
+    sub_start = sub_parser.add_parser('start', parents=[parser_tail], help='Start Kodi')
+    sub_stop = sub_parser.add_parser('stop', help='Stop Kodi')
+    sub_tail = sub_parser.add_parser('tail', help='Tail kodi.log')
+
+    sub_restart.set_defaults(func=restart)
+    sub_start.set_defaults(func=start)
+    sub_stop.set_defaults(func=stop)
+    sub_tail.set_defaults(func=tail)
+
+    parsed_args = parser.parse_args()
+
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
+    parsed_args.func(parsed_args)
+
+
+if __name__ == '__main__':
+    main()
