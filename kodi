@@ -107,13 +107,15 @@ def main():
     sub_parser = parser.add_subparsers()
 
     sub_restart = sub_parser.add_parser('restart', parents=[parser_tail], help='Restart Kodi')
-    sub_start = sub_parser.add_parser('start', parents=[parser_tail], help='Start Kodi')
-    sub_stop = sub_parser.add_parser('stop', help='Stop Kodi')
-    sub_tail = sub_parser.add_parser('tail', help='Tail kodi.log')
-
     sub_restart.set_defaults(func=restart)
+
+    sub_start = sub_parser.add_parser('start', parents=[parser_tail], help='Start Kodi')
     sub_start.set_defaults(func=start)
+
+    sub_stop = sub_parser.add_parser('stop', help='Stop Kodi')
     sub_stop.set_defaults(func=stop)
+
+    sub_tail = sub_parser.add_parser('tail', help='Tail kodi.log')
     sub_tail.set_defaults(func=tail)
 
     parsed_args = parser.parse_args()
