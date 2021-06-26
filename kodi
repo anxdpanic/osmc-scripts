@@ -58,7 +58,6 @@ optional arguments:
 import argparse
 import subprocess
 import sys
-import time
 
 
 def restart(args):
@@ -67,9 +66,7 @@ def restart(args):
     subprocess.call(['sudo', 'systemctl', 'restart', 'mediacenter'])
 
     if args.tail:
-        print('Sleeping for 5 seconds before tailing kodi.log...')
-        time.sleep(5)
-        subprocess.call(['tail', '-f', '/home/osmc/.kodi/temp/kodi.log'])
+        subprocess.call(['tail', '-F', '/home/osmc/.kodi/temp/kodi.log'])
 
 
 def start(args):
@@ -78,9 +75,7 @@ def start(args):
     subprocess.call(['sudo', 'systemctl', 'start', 'mediacenter'])
 
     if args.tail:
-        print('Sleeping for 5 seconds before tailing kodi.log...')
-        time.sleep(5)
-        subprocess.call(['tail', '-f', '/home/osmc/.kodi/temp/kodi.log'])
+        subprocess.call(['tail', '-F', '/home/osmc/.kodi/temp/kodi.log'])
 
 
 def stop(args):
@@ -94,7 +89,7 @@ def tail(args):
     _ = args
     print('Tailing kodi.log...')
 
-    subprocess.call(['tail', '-f', '/home/osmc/.kodi/temp/kodi.log'])
+    subprocess.call(['tail', '-F', '/home/osmc/.kodi/temp/kodi.log'])
 
 
 def main():
